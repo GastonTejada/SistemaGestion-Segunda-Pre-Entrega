@@ -37,10 +37,6 @@ public class ProductosService
     {
         _productosDataAccess.UpdateProduct(id, producto);
     }
-    public void UpdateStockProduct(int id, int cantidadVendida)
-    {
-        _productosDataAccess.UpdateStockProduct(id, cantidadVendida);
-    }
 
     public void DeleteProduct(int id)
     {

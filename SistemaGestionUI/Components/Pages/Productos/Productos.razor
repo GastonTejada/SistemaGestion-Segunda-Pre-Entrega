@@ -74,6 +74,7 @@
 
 @code {
     private List<Producto> productos = [];
+    public List<ProductosVendidos> productosVendidos = new List<ProductosVendidos>();
 
     private string filtro = string.Empty;
 
@@ -84,9 +85,18 @@
 
     public async Task EliminarProducto(int id)
     {
-        
-        await ProductosVendidosService.EliminarProductoVendido(id);
-        
+        // Recorro para eliminar los producots vendidos con mismo Id    
+        var productosLista = await ProductosVendidosService.ListarProductosVendidos();
+        var productosVendidos = productosLista.Where(pv => pv.IdProducto == id).ToList();
+
+        foreach (var productov in productosVendidos)
+        {
+            var productoId = productov.Id;
+            await ProductosVendidosService.EliminarProductoVendido(productoId);
+
+        }
+
+        //Elimino el producto
         await Service.DeleteProduct(id);
         productos = await Service.ListProducts();        
     }

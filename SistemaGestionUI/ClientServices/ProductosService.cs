@@ -41,11 +41,7 @@ public class ProductosService
         await _httpClient.PutAsJsonAsync($"{id}", producto);
     }
 
-    public async Task UpdateStockProduct(int id, int stock)
-    {
-        await _httpClient.PutAsJsonAsync($"{id}", stock);
-    }
-
+  
     public async Task DeleteProduct(int id)
     {
         await _httpClient.DeleteAsync($"{id}");

@@ -68,10 +68,4 @@ public class ProductosController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("UpdateStock")]
-    public ActionResult UpdateStockProduct([FromRoute(Name = "id")] int id, int stock)
-    {
-        _productosService.UpdateStockProduct(id, stock);
-        return NoContent();
-    }
 }

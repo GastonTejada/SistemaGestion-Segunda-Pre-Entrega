@@ -57,16 +57,6 @@ public class ProductosDataAccess
         }
     }
 
-    public void UpdateStockProduct(int id, int cantidadVendida)
-    {
-        var productoToUpdate = GetOneProduct(id);
-        if (productoToUpdate != null)
-        {
-            productoToUpdate.Stock -= cantidadVendida;
-            _context.Productos.Update(productoToUpdate);
-            _context.SaveChanges();
-        }
-    }
 
     public void DeleteProduct(int id)
     {

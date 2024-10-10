@@ -3,6 +3,7 @@
 @inject ProductosService ServicePro
 @inject UsuariosService ServiceUsuario
 @inject ProductosVendidosService ProductosVendidosService
+@inject IJSRuntime JS
 
 <h3>Formulario de Venta</h3>
                     
@@ -71,7 +72,7 @@
     public Venta? Venta { get; set; }
     public List<Producto> productosDisponibles = new List<Producto>();
     public List<Usuario> usuariosDisponibles = new List<Usuario>();
-    public ProductosVendidos productosVendidos { get; set; }
+    public ProductosVendidos? productosVendidos { get; set; }
 
     protected override async Task OnInitializedAsync()
     {        
@@ -85,6 +86,40 @@
     public async Task CreateOrUpdateVenta()
     {
 
+        // Validar si no se ha seleccionado un usuario
+        if ( Venta.UsuarioId == 0)
+        {            
+            await JS.InvokeVoidAsync("alert", "Por favor, seleccione un usuario antes de continuar.");
+            return;
+        }
+
+        bool lError         = false;
+        string mensajeError = "";
+
+        // Validar que no haya productos con cantidad mayor al stock
+        foreach (var producto in productosDisponibles)
+        {
+            if (producto.Cantidad > producto.Stock)
+            {
+                lError = true;
+                mensajeError += $"El producto {producto.Descripcion} tiene una cantidad mayor al stock disponible.\n";
+            }
+        }
+
+        // Validar que al menos un producto tenga cantidad mayor a 0
+        if (!productosDisponibles.Any(p => p.Cantidad > 0))
+        {
+            lError = true;
+            mensajeError += "Debe ingresar una cantidad mayor a 0 para al menos un producto.\n";
+        }
+
+        // Si hay errores, mostrar un mensaje de alerta
+        if (lError)
+        {
+            await JS.InvokeVoidAsync("alert", mensajeError);
+            return;
+        }
+
         if (Venta.Id > 0)
         {
             await Service.ModificarVenta(Venta.Id, Venta);
@@ -92,12 +127,10 @@
         }
         else
         {
-            // await Service.CrearVenta(Venta);
-
 
             // Crear la venta y obtener el ID generado
             Venta nuevaVenta = await Service.CrearVenta(Venta);
-            int ventaId = nuevaVenta.Id; // Aquí obtienes el ID de la venta creada
+            int ventaId = nuevaVenta.Id;
 
             // Insertar productos vendidos solo si la cantidad es mayor a 0
             foreach (var producto in productosDisponibles.Where(p => p.Cantidad > 0))
@@ -110,13 +143,15 @@
                 productoVendido.IdProducto = producto.Id;
                 productoVendido.Cantidad   = producto.Cantidad;
                 productoVendido.Stock      = stock;
-                
+
                 // Llamar al servicio para agregar productos vendido8s
                 await ProductosVendidosService.CrearProductoVendido(productoVendido);
 
-                // Llamar al servicio para agregar productos vendidos
-                await ServicePro.UpdateStockProduct(producto.Id, stock);
-                
+                // Llamar al servicio para actulizar el stock de los productos vendidos
+                var productoAux = await ServicePro.GetOneProduct(producto.Id);
+                productoAux.Stock = stock;
+                await ServicePro.UpdateProduct(producto.Id, productoAux);
+
             }
 
         }
