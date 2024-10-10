@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.WebUtilities;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SistemaGestionUI.Components.Pages.Productos;
 
 namespace SistemaGestionUI.ClientServices;
 
@@ -38,6 +39,11 @@ public class ProductosService
     public async Task UpdateProduct(int id, Producto producto)
     {
         await _httpClient.PutAsJsonAsync($"{id}", producto);
+    }
+
+    public async Task UpdateStockProduct(int id, int stock)
+    {
+        await _httpClient.PutAsJsonAsync($"{id}", stock);
     }
 
     public async Task DeleteProduct(int id)

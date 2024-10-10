@@ -1,4 +1,5 @@
-﻿using SistemaGestionData.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
+using SistemaGestionData.DataAccess;
 using SistemaGestionEntities;
 
 namespace SistemaGestionBussiness.Services;
@@ -36,6 +37,10 @@ public class ProductosService
     {
         _productosDataAccess.UpdateProduct(id, producto);
     }
+    public void UpdateStockProduct(int id, int cantidadVendida)
+    {
+        _productosDataAccess.UpdateStockProduct(id, cantidadVendida);
+    }
 
     public void DeleteProduct(int id)
     {
@@ -62,5 +67,8 @@ public class ProductosService
             _productosDataAccess.UpdateProduct(producto.Id, producto);
         }
     }
+
+    
+
 
 }

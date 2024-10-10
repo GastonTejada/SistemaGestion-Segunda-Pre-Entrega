@@ -11,7 +11,7 @@ public class ProductosVendidos
     public int? IdProducto { get; set; }
 
     [Required(ErrorMessage = "El campo Stock es requerido.")]    
-    public decimal Stock { get; set; }
+    public int Stock { get; set; }
 
     [Required(ErrorMessage = "El campo Cantidad es requerido.")]
     public decimal Cantidad { get; set; }

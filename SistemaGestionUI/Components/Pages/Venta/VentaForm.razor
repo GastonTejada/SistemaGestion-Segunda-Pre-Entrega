@@ -71,26 +71,54 @@
     public Venta? Venta { get; set; }
     public List<Producto> productosDisponibles = new List<Producto>();
     public List<Usuario> usuariosDisponibles = new List<Usuario>();
-        
+    public ProductosVendidos productosVendidos { get; set; }
+
     protected override async Task OnInitializedAsync()
     {        
         usuariosDisponibles = await ServiceUsuario.ListUsers();
-        
+
         var productos = await ServicePro.ListProducts();
         productosDisponibles = productos.Where(p => p.Stock > 0).ToList();
-               
+
     }
 
     public async Task CreateOrUpdateVenta()
     {
-  
+
         if (Venta.Id > 0)
         {
             await Service.ModificarVenta(Venta.Id, Venta);
+
         }
         else
         {
-            await Service.CrearVenta(Venta);            
+            // await Service.CrearVenta(Venta);
+
+
+            // Crear la venta y obtener el ID generado
+            Venta nuevaVenta = await Service.CrearVenta(Venta);
+            int ventaId = nuevaVenta.Id; // Aquí obtienes el ID de la venta creada
+
+            // Insertar productos vendidos solo si la cantidad es mayor a 0
+            foreach (var producto in productosDisponibles.Where(p => p.Cantidad > 0))
+            {
+                var productoVendido = new ProductosVendidos();
+
+                var stock = producto.Stock - producto.Cantidad;
+
+                productoVendido.IdVenta    = ventaId;
+                productoVendido.IdProducto = producto.Id;
+                productoVendido.Cantidad   = producto.Cantidad;
+                productoVendido.Stock      = stock;
+                
+                // Llamar al servicio para agregar productos vendido8s
+                await ProductosVendidosService.CrearProductoVendido(productoVendido);
+
+                // Llamar al servicio para agregar productos vendidos
+                await ServicePro.UpdateStockProduct(producto.Id, stock);
+                
+            }
+
         }
 
         NavigationManager.NavigateTo("/ventas");
